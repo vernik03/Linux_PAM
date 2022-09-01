@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+option objc_class_prefix = "HLW";
+
+package helloworld;
+
+service PAM {
+  // Get a list of all secrets for specific user
+  rpc GetSecretsForUser (UserData) returns (SecretList) {}
+  // Get a user's secret with given type
+  rpc GetSecret (RequestedSecret) returns (Secret) {}
+  rpc AddSecret (Secret) returns (Secret) {}
+  rpc RemoveSecret (Secret) returns (Secret) {}
+  rpc EditSecret (UpdatedSecret) returns (Secret) {}
+  rpc Authorise (AuthData) returns (Token) {}
+  rpc GetAllSecrets (Token) returns (SecretList) {}
+  rpc GetAllUsers (Token) returns (UserDataList) {}
+
+  rpc ShareSecret (SecretAdmin) returns (Empty) {}
+  rpc DenySecret (SecretAdmin) returns (Empty) {}
+
+  rpc IsUserExists (UserData) returns (Empty) {}
+}
+
+enum SecretType {
+  SSH = 0;
+  RDP = 1;
+  VNC = 2;
+}
+
+enum UserRoles {
+  Regular = 0;
+  Admin = 1;
+}
+
+enum ErrorCode {
+  OK = 0;
+  InvalidUsername = 1;
+  InvalidPassword = 2;
+  InvalidToken = 3;
+  NotAdmin = 4;
+  Other = 100;
+}
+
+message RequestedSecret {
+  UserData user = 1;
+  SecretType type = 2;
+  optional string password = 3;
+}
+
+message UserData {
+  string login = 1;
+  optional string password = 2;
+  optional int32 role = 3;
+  optional int32 uid = 4;
+}
+
+message UserDataList {
+  repeated UserData user_data = 1;
+}
+
+message SecretList {
+  repeated Secret secret = 1;
+}
+
+message SecretAdminList {
+  repeated  SecretAdmin secret = 1;
+}
+
+message UpdatedSecret {
+  Secret old = 1;
+  Secret new_ = 2;
+}
+
+message Secret {
+  string addr = 1;
+  string login = 2;
+  string pass = 3;
+  optional int32 port = 4;
+  SecretType type = 5;
+}
+
+message AuthData {
+  string user = 1;
+  string pass = 2;
+}
+
+message Token {
+  // TODO: add expire date
+  string token = 1;
+}
+message SecretAdmin{
+  Secret secret = 1;
+  UserData user = 2;
+  Token token = 3;
+}
+
+message Empty{
+}
+
